@@ -1,0 +1,26 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+#    volumes:
+#      - qdrant_data:/qdrant/storage
+
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb-ai
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: ai_chat
+      MARIADB_USER: ai
+      MARIADB_PASSWORD: ai
+#    volumes:
+#      - mariadb_data:/var/lib/mysql
+#
+#volumes:
+#  qdrant_data:
+#  mariadb_data:
