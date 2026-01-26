@@ -12,7 +12,7 @@ services:
     image: mariadb:latest
     container_name: mariadb-ai
     ports:
-      - "3306:3306"
+      - "3310:3306"
     environment:
       MARIADB_ROOT_PASSWORD: root
       MARIADB_DATABASE: ai_chat

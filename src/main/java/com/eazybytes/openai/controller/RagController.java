@@ -2,13 +2,13 @@ package com.eazybytes.openai.controller;
 
 import com.eazybytes.openai.exception.InvalidAnswerException;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.evaluation.FactCheckingEvaluator;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.evaluation.EvaluationRequest;
 import org.springframework.ai.evaluation.EvaluationResponse;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -39,13 +39,13 @@ public class RagController {
     private final VectorStore vectorStore;
     private final FactCheckingEvaluator factCheckingEvaluator;
 
-
-    public RagController(ChatClient.Builder chatClientBuilder, VectorStore vectorStore, FactCheckingEvaluator factCheckingEvaluator) {
-        this.chatClient = chatClientBuilder.defaultAdvisors(new SimpleLoggerAdvisor())
-                .build();
+    public RagController(@Qualifier("chatMemoryChatClient") ChatClient chatClient, VectorStore vectorStore,
+                         FactCheckingEvaluator factCheckingEvaluator) {
+        this.chatClient = chatClient;
         this.vectorStore = vectorStore;
         this.factCheckingEvaluator = factCheckingEvaluator;
     }
+
 
     @GetMapping("/random/chat")
     public ResponseEntity<String> randomChat(@RequestHeader("username") String username,
@@ -83,7 +83,7 @@ public class RagController {
                 .advisors(a -> a.param(CONVERSATION_ID, username))
                 .user(message)
                 .call().content();
-        validateAnswer(message, answer, similarDocs);
+//        validateAnswer(message, answer, similarDocs);
         return ResponseEntity.ok(answer);
     }
 

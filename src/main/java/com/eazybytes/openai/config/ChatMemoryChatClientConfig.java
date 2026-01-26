@@ -13,14 +13,21 @@ import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.rag.preretrieval.query.transformation.TranslationQueryTransformer;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Configuration
 public class ChatMemoryChatClientConfig {
 
+
+    @Value("classpath:/promptTemplates/evaluationPromptTemplate.st")
+    Resource evaluationPromptTemplate;
 
     @Bean(name = "chatMemoryChatClient")
     public ChatClient chatClient(ChatClient.Builder chatClientBuilder
@@ -44,7 +51,7 @@ public class ChatMemoryChatClientConfig {
     }
 
     @Bean
-    public FactCheckingEvaluator factCheckingEvaluator(ChatClient.Builder chatClient) {
+    public FactCheckingEvaluator factCheckingEvaluator(ChatClient.Builder chatClient) throws IOException {
         // Ensure the cloned client also uses the correct model
         ChatClient.Builder clonedChatClientBuilder = chatClient.clone()
                 .defaultOptions(ChatOptions.builder()
@@ -52,7 +59,8 @@ public class ChatMemoryChatClientConfig {
                         .temperature(0.7)
                         .build());
 
-        return FactCheckingEvaluator.builder(clonedChatClientBuilder).build();
+        return FactCheckingEvaluator.builder(clonedChatClientBuilder).evaluationPrompt(
+                evaluationPromptTemplate.getContentAsString(StandardCharsets.UTF_8)).build();
     }
 
 
